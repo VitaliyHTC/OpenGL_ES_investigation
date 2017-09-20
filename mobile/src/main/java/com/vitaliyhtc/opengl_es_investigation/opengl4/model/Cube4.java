@@ -20,8 +20,8 @@ import com.vitaliyhtc.opengl_es_investigation.util.TextureUtils;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * See: https://learnopengl.com/#!Lighting/Multiple-lights
@@ -52,7 +52,8 @@ public class Cube4 {
 
 
     // vertex shader
-    private int uModelViewMatrixLocation;
+    private int uModelMatrixLocation;
+    private int uViewMatrixLocation;
     private int uProjectionMatrixLocation;
     private int aPositionLocation;
     private int aTextureUnitLocation;
@@ -63,12 +64,13 @@ public class Cube4 {
     private int uMaterialSpecularMapLocation;
     private int uMaterialShininessLocation;
     private DirLightLocationHolder uDirLightLocationHolder;
-    private Map<Integer, PointLightLocationHolder> uPointLightLocationHoldersMap;
+    private List<PointLightLocationHolder> uPointLightLocationHoldersList;
     private SpotLightLocationHolder uSpotLightLocationHolder;
     private int uViewPosLocation;
 
     private Point3f mCameraPos;
 
+    private List<Point3f> mCubePositions;
 
     //private int texture;
     private int textureMap;
@@ -76,13 +78,16 @@ public class Cube4 {
     private int vertexStride;
 
 
-    private float[] mMatrix = new float[16];
+    //private float[] mMatrix = new float[16];
+    private float[] mModelMatrix = new float[16];
 
 
     public Cube4(Context context) {
         mContext = context;
 
-        uPointLightLocationHoldersMap = new HashMap<>();
+        uPointLightLocationHoldersList = new ArrayList<>();
+        initCubePos();
+        //mCameraPos = new Point3f(0.0f, 3.0f, 4.0f);
         mCameraPos = new Point3f(0.0f, 0.0f, 3.0f);
 
         //mTextureResId = R.drawable.container2;
@@ -96,6 +101,20 @@ public class Cube4 {
 
         getLocations();
         prepareData();
+    }
+
+    private void initCubePos() {
+        mCubePositions = new ArrayList<>();
+        mCubePositions.add(new Point3f(0.0f, 0.0f, 0.0f));
+        mCubePositions.add(new Point3f(2.0f, 5.0f, -15.0f));
+        mCubePositions.add(new Point3f(-1.5f, -2.2f, -2.5f));
+        mCubePositions.add(new Point3f(-3.8f, -2.0f, -12.3f));
+        mCubePositions.add(new Point3f(2.4f, -0.4f, -3.5f));
+        mCubePositions.add(new Point3f(-1.7f, 3.0f, -7.5f));
+        mCubePositions.add(new Point3f(1.3f, -2.0f, -2.5f));
+        mCubePositions.add(new Point3f(1.5f, 2.0f, -2.5f));
+        mCubePositions.add(new Point3f(1.5f, 0.2f, -1.5f));
+        mCubePositions.add(new Point3f(-1.3f, 1.0f, -1.5f));
     }
 
     private void initSpecs() {
@@ -160,16 +179,17 @@ public class Cube4 {
 
     private void getLocations() {
         // vertex shader
-        uModelViewMatrixLocation = GLES20.glGetUniformLocation(mProgram, "u_ModelViewMatrix");
+        uModelMatrixLocation = GLES20.glGetUniformLocation(mProgram, "u_ModelMatrix");
+        uViewMatrixLocation = GLES20.glGetUniformLocation(mProgram, "u_ViewMatrix");
         uProjectionMatrixLocation = GLES20.glGetUniformLocation(mProgram, "u_ProjectionMatrix");
         aPositionLocation = GLES20.glGetAttribLocation(mProgram, "a_Position");
         aTextureUnitLocation = GLES20.glGetAttribLocation(mProgram, "a_TexCoord");
         aNormalLocation = GLES20.glGetAttribLocation(mProgram, "a_Normal");
 
         // fragment shader
-        uMaterialDiffuseMapLocation = GLES20.glGetUniformLocation(mProgram, "u_Material.DiffuseMap");
-        uMaterialSpecularMapLocation = GLES20.glGetUniformLocation(mProgram, "u_Material.SpecularMap");
-        uMaterialShininessLocation = GLES20.glGetUniformLocation(mProgram, "u_Material.Shininess");
+        uMaterialDiffuseMapLocation = GLES20.glGetUniformLocation(mProgram, "material.diffuse");
+        uMaterialSpecularMapLocation = GLES20.glGetUniformLocation(mProgram, "material.specular");
+        uMaterialShininessLocation = GLES20.glGetUniformLocation(mProgram, "material.shininess");
         uDirLightLocationHolder = new DirLightLocationHolder(
                 GLES20.glGetUniformLocation(mProgram, "dirLight.direction"),
                 GLES20.glGetUniformLocation(mProgram, "dirLight.ambient"),
@@ -177,7 +197,7 @@ public class Cube4 {
                 GLES20.glGetUniformLocation(mProgram, "dirLight.specular")
         );
 
-        uPointLightLocationHoldersMap.put(0,
+        uPointLightLocationHoldersList.add(
                 new PointLightLocationHolder(
                         GLES20.glGetUniformLocation(mProgram, "pointLights[0].position"),
                         GLES20.glGetUniformLocation(mProgram, "pointLights[0].constant"),
@@ -189,7 +209,7 @@ public class Cube4 {
                 )
         );
 
-        uPointLightLocationHoldersMap.put(1,
+        uPointLightLocationHoldersList.add(
                 new PointLightLocationHolder(
                         GLES20.glGetUniformLocation(mProgram, "pointLights[1].position"),
                         GLES20.glGetUniformLocation(mProgram, "pointLights[1].constant"),
@@ -201,7 +221,7 @@ public class Cube4 {
                 )
         );
 
-        uPointLightLocationHoldersMap.put(2,
+        uPointLightLocationHoldersList.add(
                 new PointLightLocationHolder(
                         GLES20.glGetUniformLocation(mProgram, "pointLights[2].position"),
                         GLES20.glGetUniformLocation(mProgram, "pointLights[2].constant"),
@@ -213,7 +233,7 @@ public class Cube4 {
                 )
         );
 
-        uPointLightLocationHoldersMap.put(3,
+        uPointLightLocationHoldersList.add(
                 new PointLightLocationHolder(
                         GLES20.glGetUniformLocation(mProgram, "pointLights[3].position"),
                         GLES20.glGetUniformLocation(mProgram, "pointLights[3].constant"),
@@ -365,6 +385,7 @@ public class Cube4 {
         GLES20.glUniform3f(uDirLightLocationHolder.getuSpecularLocation(),
                 mDirLightSpec.getSpecular().x, mDirLightSpec.getSpecular().y, mDirLightSpec.getSpecular().z);
 
+
         PointLightSpec pls = null;
         for (int i = 0; i < 4; i++) {
             if (i == 0) pls = mPointLightSpec0;
@@ -372,18 +393,19 @@ public class Cube4 {
             if (i == 2) pls = mPointLightSpec2;
             if (i == 3) pls = mPointLightSpec3;
 
-            GLES20.glUniform3f(uPointLightLocationHoldersMap.get(i).getuPositionLocation(),
+            GLES20.glUniform3f(uPointLightLocationHoldersList.get(i).getuPositionLocation(),
                     pls.getPosition().x, pls.getPosition().y, pls.getPosition().z);
-            GLES20.glUniform1f(uPointLightLocationHoldersMap.get(i).getuConstantLocation(), pls.getConstant());
-            GLES20.glUniform1f(uPointLightLocationHoldersMap.get(i).getuLinearLocation(), pls.getLinear());
-            GLES20.glUniform1f(uPointLightLocationHoldersMap.get(i).getuQuadraticLocation(), pls.getQuadratic());
-            GLES20.glUniform3f(uPointLightLocationHoldersMap.get(i).getuAmbientLocation(),
+            GLES20.glUniform1f(uPointLightLocationHoldersList.get(i).getuConstantLocation(), pls.getConstant());
+            GLES20.glUniform1f(uPointLightLocationHoldersList.get(i).getuLinearLocation(), pls.getLinear());
+            GLES20.glUniform1f(uPointLightLocationHoldersList.get(i).getuQuadraticLocation(), pls.getQuadratic());
+            GLES20.glUniform3f(uPointLightLocationHoldersList.get(i).getuAmbientLocation(),
                     pls.getAmbient().x, pls.getAmbient().y, pls.getAmbient().z);
-            GLES20.glUniform3f(uPointLightLocationHoldersMap.get(i).getuDiffuseLocation(),
+            GLES20.glUniform3f(uPointLightLocationHoldersList.get(i).getuDiffuseLocation(),
                     pls.getDiffuse().x, pls.getDiffuse().y, pls.getDiffuse().z);
-            GLES20.glUniform3f(uPointLightLocationHoldersMap.get(i).getuSpecularLocation(),
+            GLES20.glUniform3f(uPointLightLocationHoldersList.get(i).getuSpecularLocation(),
                     pls.getSpecular().x, pls.getSpecular().y, pls.getSpecular().z);
         }
+
 
         GLES20.glUniform3f(uSpotLightLocationHolder.getuPositionLocation(),
                 mSpotLightSpec.getPosition().x, mSpotLightSpec.getPosition().y, mSpotLightSpec.getPosition().z);
@@ -397,20 +419,31 @@ public class Cube4 {
 
     }
 
-    public void draw(float[] viewMatrix, float[] projectionMatrix, float[] modelMatrix) {
+    public void draw(float[] viewMatrix, float[] projectionMatrix) {
         GLES20.glUseProgram(mProgram);
-
-        Matrix.setIdentityM(mMatrix, 0);
-
-        Matrix.multiplyMM(mMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-
-        GLES20.glUniformMatrix4fv(uProjectionMatrixLocation, 1, false, projectionMatrix, 0);
-        GLES20.glUniformMatrix4fv(uModelViewMatrixLocation, 1, false, mMatrix, 0);
 
         bindData();
 
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, 36, GLES20.GL_UNSIGNED_BYTE, indexArray);
+        for (int i = 0; i < mCubePositions.size(); i++) {
+            //for (int i = 0; i < 1; i++) {
+            //Matrix.setIdentityM(mMatrix, 0);
+            Matrix.setIdentityM(mModelMatrix, 0);
 
+            Point3f currCubPos = mCubePositions.get(i);
+
+            Matrix.translateM(mModelMatrix, 0, currCubPos.x, currCubPos.y, currCubPos.z);
+            float angle = 20.0f * i;
+            Matrix.rotateM(mModelMatrix, 0, angle, 1.0f, 0.3f, 0.5f);
+            Matrix.scaleM(mModelMatrix, 0, 0.5f, 0.5f, 0.5f);
+
+            //Matrix.multiplyMM(mMatrix, 0, viewMatrix, 0, mModelMatrix, 0);
+
+            GLES20.glUniformMatrix4fv(uModelMatrixLocation, 1, false, mModelMatrix, 0);
+            GLES20.glUniformMatrix4fv(uViewMatrixLocation, 1, false, viewMatrix, 0);
+            GLES20.glUniformMatrix4fv(uProjectionMatrixLocation, 1, false, projectionMatrix, 0);
+
+            GLES20.glDrawElements(GLES20.GL_TRIANGLES, 36, GLES20.GL_UNSIGNED_BYTE, indexArray);
+        }
     }
 
 }

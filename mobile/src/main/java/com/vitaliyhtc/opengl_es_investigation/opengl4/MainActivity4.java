@@ -22,7 +22,7 @@ public class MainActivity4 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main4);
         if (!OpenGLUtils.supportES2(this)) {
             Toast.makeText(this, "OpenGl ES 2.0 is not supported", Toast.LENGTH_LONG).show();
             Log.e(TAG, "onCreate: OpenGl ES 2.0 is not supported");
@@ -39,7 +39,7 @@ public class MainActivity4 extends AppCompatActivity {
 
         // Render the view only when there is a change in the drawing data
         // disable animation. So, not applicable in our context.
-        //glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
     @Override
