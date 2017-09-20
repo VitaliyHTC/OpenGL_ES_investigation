@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">OpenGL_ES_investigation</string>
+    <string name="message">Watch face tapped</string>
+    <string name="my_analog_name">My Analog</string>
+
+
+    <string name="opengl_name">Sample OpenGL2</string>
+</resources>
