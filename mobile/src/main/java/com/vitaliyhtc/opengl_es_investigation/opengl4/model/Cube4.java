@@ -55,6 +55,7 @@ public class Cube4 {
     private int uModelMatrixLocation;
     private int uViewMatrixLocation;
     private int uProjectionMatrixLocation;
+    //private int uTransposeInverseModelMatrixLocation;
     private int aPositionLocation;
     private int aTextureUnitLocation;
     private int aNormalLocation;
@@ -80,6 +81,7 @@ public class Cube4 {
 
     //private float[] mMatrix = new float[16];
     private float[] mModelMatrix = new float[16];
+    //private float[] mTransposeInverseModelMatrix = new float[16];
 
 
     public Cube4(Context context) {
@@ -182,6 +184,7 @@ public class Cube4 {
         uModelMatrixLocation = GLES20.glGetUniformLocation(mProgram, "u_ModelMatrix");
         uViewMatrixLocation = GLES20.glGetUniformLocation(mProgram, "u_ViewMatrix");
         uProjectionMatrixLocation = GLES20.glGetUniformLocation(mProgram, "u_ProjectionMatrix");
+        //uTransposeInverseModelMatrixLocation = GLES20.glGetUniformLocation(mProgram, "u_TransposeInverseModelMatrix");
         aPositionLocation = GLES20.glGetAttribLocation(mProgram, "a_Position");
         aTextureUnitLocation = GLES20.glGetAttribLocation(mProgram, "a_TexCoord");
         aNormalLocation = GLES20.glGetAttribLocation(mProgram, "a_Normal");
@@ -265,9 +268,9 @@ public class Cube4 {
         // coords, colors, texture coords, normal vector
         float vertices[] = {
                 // Front
-                1, -1, 1, 1, 0, 0, 1, 2, 0, 0, 0, 1, // 0
-                1, 1, 1, 0, 1, 0, 1, 2, 2, 0, 0, 1, // 1
-                -1, 1, 1, 0, 0, 1, 1, 0, 2, 0, 0, 1, // 2
+                1, -1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, // 0
+                1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, // 1
+                -1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, // 2
                 -1, -1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, // 3
 
                 // Back
@@ -428,19 +431,25 @@ public class Cube4 {
             //for (int i = 0; i < 1; i++) {
             //Matrix.setIdentityM(mMatrix, 0);
             Matrix.setIdentityM(mModelMatrix, 0);
+            //Matrix.setIdentityM(mTransposeInverseModelMatrix, 0);
 
             Point3f currCubPos = mCubePositions.get(i);
 
             Matrix.translateM(mModelMatrix, 0, currCubPos.x, currCubPos.y, currCubPos.z);
+            Matrix.scaleM(mModelMatrix, 0, 0.5f, 0.5f, 0.5f);
             float angle = 20.0f * i;
             Matrix.rotateM(mModelMatrix, 0, angle, 1.0f, 0.3f, 0.5f);
-            Matrix.scaleM(mModelMatrix, 0, 0.5f, 0.5f, 0.5f);
+
+            //mTransposeInverseModelMatrix
+            //Matrix.transposeM(mTransposeInverseModelMatrix, 0, mModelMatrix, 0);
+            //Matrix.invertM(mTransposeInverseModelMatrix, 0, mTransposeInverseModelMatrix, 0);
 
             //Matrix.multiplyMM(mMatrix, 0, viewMatrix, 0, mModelMatrix, 0);
 
             GLES20.glUniformMatrix4fv(uModelMatrixLocation, 1, false, mModelMatrix, 0);
             GLES20.glUniformMatrix4fv(uViewMatrixLocation, 1, false, viewMatrix, 0);
             GLES20.glUniformMatrix4fv(uProjectionMatrixLocation, 1, false, projectionMatrix, 0);
+            //GLES20.glUniformMatrix4fv(uTransposeInverseModelMatrixLocation, 1, false, mTransposeInverseModelMatrix, 0);
 
             GLES20.glDrawElements(GLES20.GL_TRIANGLES, 36, GLES20.GL_UNSIGNED_BYTE, indexArray);
         }
