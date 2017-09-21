@@ -1,4 +1,4 @@
-package com.vitaliyhtc.opengl_es_investigation.opengl4.utils;
+package com.vitaliyhtc.opengl_es_investigation.opengl5.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -53,12 +53,14 @@ public class TextureUtils {
     public static int loadTexture(Bitmap bitmap) {
 
         int textureName[] = new int[1];
-        ;
+
         GLES20.glGenTextures(1, textureName, 0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureName[0]);
 
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        //GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+        //GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, bitmap, 0);
 

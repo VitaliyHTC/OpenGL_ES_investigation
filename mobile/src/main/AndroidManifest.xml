@@ -19,6 +19,15 @@
         android:theme="@style/AppTheme">
 
         <activity
+            android:name="com.vitaliyhtc.opengl_es_investigation.opengl5.MainActivity5"
+            android:label="OpenGL.5">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name="com.vitaliyhtc.opengl_es_investigation.opengl4.MainActivity4"
             android:label="OpenGL.4">
             <intent-filter>

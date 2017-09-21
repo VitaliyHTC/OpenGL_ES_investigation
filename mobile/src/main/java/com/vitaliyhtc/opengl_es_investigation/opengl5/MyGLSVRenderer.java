@@ -1,25 +1,17 @@
-package com.vitaliyhtc.opengl_es_investigation.opengl3;
+package com.vitaliyhtc.opengl_es_investigation.opengl5;
 
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.SystemClock;
 
-import com.vitaliyhtc.opengl_es_investigation.R;
-import com.vitaliyhtc.opengl_es_investigation.opengl3.model.Cube3;
-import com.vitaliyhtc.opengl_es_investigation.opengl3.model.Cube3Map;
-import com.vitaliyhtc.opengl_es_investigation.opengl3.model.LightSourceSpec;
-import com.vitaliyhtc.opengl_es_investigation.opengl3.model.MaterialLightMapSpec;
-import com.vitaliyhtc.opengl_es_investigation.opengl3.model.MaterialLightSpec;
-import com.vitaliyhtc.opengl_es_investigation.opengl3.model.Point3f;
+import com.vitaliyhtc.opengl_es_investigation.opengl5.model.Model5;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * Created by vitaliyhtc on 19.09.17.
- * trying to cleanup this.
+ * Created by vitaliyhtc on 21.09.17.
  */
 
 @SuppressWarnings("WeakerAccess")
@@ -29,16 +21,18 @@ public class MyGLSVRenderer implements GLSurfaceView.Renderer {
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
 
-    private final float[] mModel0Matrix = new float[16];
-    private final float[] mModel1Matrix = new float[16];
-    private final float[] mModel2Matrix = new float[16];
+    //private final float[] mModel0Matrix = new float[16];
+    //private final float[] mModel1Matrix = new float[16];
+    //private final float[] mModel2Matrix = new float[16];
 
     private Context mContext;
 
     //private Square1 mSquare1;
-    private Cube3 mCube3_0;
-    private Cube3 mCube3_1;
-    private Cube3Map mCube3_2;
+    //private Cube3 mCube3_0;
+    //private Cube3 mCube3_1;
+    //private Cube3Map mCube3_2;
+    //private Cube4 mCube4;
+    private Model5 mModel5;
 
     public MyGLSVRenderer(Context context) {
         mContext = context;
@@ -48,7 +42,7 @@ public class MyGLSVRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 0f);
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-        GLES20.glEnable(GLES20.GL_CULL_FACE);
+        //GLES20.glEnable(GLES20.GL_CULL_FACE);
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -56,36 +50,11 @@ public class MyGLSVRenderer implements GLSurfaceView.Renderer {
     }
 
     private void init() {
-
-        MaterialLightSpec materialLightSpecCube0 = new MaterialLightSpec(
-                new Point3f(0.19125f, 0.0735f, 0.0225f),
-                new Point3f(0.7038f, 0.27048f, 0.0828f),
-                new Point3f(0.256777f, 0.137622f, 0.086014f),
-                12.8f
-        );
-
-        MaterialLightSpec materialLightSpecCube1 = new MaterialLightSpec(
-                new Point3f(0.02f, 0.02f, 0.02f),
-                new Point3f(0.01f, 0.01f, 0.01f),
-                new Point3f(0.4f, 0.4f, 0.4f),
-                10
-        );
-
-        MaterialLightMapSpec materialLightMapSpecCube2 = new MaterialLightMapSpec(
-                R.drawable.container2,
-                R.drawable.container2_specular,
-                12.8f
-        );
-
-        LightSourceSpec lightSourceSpec = new LightSourceSpec(
-                new Point3f(1.0f, 1.0f, 1.0f),
-                new Point3f(0.0f, 1.0f, -0.5f)
-        );
-
-
-        mCube3_0 = new Cube3(mContext, R.drawable.box0, materialLightSpecCube0, lightSourceSpec);
-        mCube3_1 = new Cube3(mContext, R.drawable.white, materialLightSpecCube1, lightSourceSpec);
-        mCube3_2 = new Cube3Map(mContext, R.drawable.container2, materialLightMapSpecCube2, lightSourceSpec);
+        //mCube3_0 = new Cube3(mContext, R.drawable.box0, materialLightSpecCube0, lightSourceSpec);
+        //mCube3_1 = new Cube3(mContext, R.drawable.white, materialLightSpecCube1, lightSourceSpec);
+        //mCube3_2 = new Cube3Map(mContext, R.drawable.container2, materialLightMapSpecCube2, lightSourceSpec);
+        //mCube4 = new Cube4(mContext);
+        mModel5 = new Model5(mContext);
     }
 
     @Override
@@ -121,25 +90,29 @@ public class MyGLSVRenderer implements GLSurfaceView.Renderer {
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
-        setModelMatrices();
+        //setModelMatrices();
 
-        mCube3_0.draw(mViewMatrix, mProjectionMatrix, mModel0Matrix);
-        mCube3_1.draw(mViewMatrix, mProjectionMatrix, mModel1Matrix);
-        mCube3_2.draw(mViewMatrix, mProjectionMatrix, mModel2Matrix);
-
+        //mCube3_0.draw(mViewMatrix, mProjectionMatrix, mModel0Matrix);
+        //mCube3_1.draw(mViewMatrix, mProjectionMatrix, mModel1Matrix);
+        //mCube3_2.draw(mViewMatrix, mProjectionMatrix, mModel2Matrix);
         //mSquare1.draw(mViewMatrix, mProjectionMatrix);
+        //mCube4.draw(mViewMatrix, mProjectionMatrix);
+
+        mModel5.draw(mViewMatrix, mProjectionMatrix);
     }
 
     private void setViewMatrix() {
+        // TODO: camera position relation there and in Cube4 mCameraPos !!! refactor this!
+
         // точка положения камеры
-        float eyeX = 0;
-        float eyeY = 3;
-        float eyeZ = 4;
+        float eyeX = 1;
+        float eyeY = 2; //3
+        float eyeZ = 4; //4
 
         // точка направления камеры
         float centerX = 0;
         float centerY = 0;
-        float centerZ = 0;
+        float centerZ = -3;
 
         // up-вектор
         float upX = 0;
@@ -150,6 +123,7 @@ public class MyGLSVRenderer implements GLSurfaceView.Renderer {
     }
 
     private void setModelMatrices() {
+        /*
         Matrix.setIdentityM(mModel0Matrix, 0);
         Matrix.setIdentityM(mModel1Matrix, 0);
         Matrix.setIdentityM(mModel2Matrix, 0);
@@ -170,6 +144,7 @@ public class MyGLSVRenderer implements GLSurfaceView.Renderer {
         Matrix.rotateM(mModel1Matrix, 0, angle1, 0, 0, 1);
         Matrix.rotateM(mModel2Matrix, 0, angle, 0, 1, 0);
         Matrix.rotateM(mModel2Matrix, 0, angle1, 0, 0, 1);
+        */
     }
 
 }
